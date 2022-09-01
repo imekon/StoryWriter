@@ -20,7 +20,11 @@ namespace StoryWriter
 
         private void OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            m_viewModel.SetStory((Story)e.NewValue);
+            var storyViewModel = e.NewValue as StoryViewModel;
+            if (storyViewModel == null)
+                return;
+
+            m_viewModel.SetStory(storyViewModel);
         }
     }
 }

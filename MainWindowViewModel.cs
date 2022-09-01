@@ -10,20 +10,22 @@ using Microsoft.Win32;
 
 namespace StoryWriter
 {
-    internal class MainWindowViewModel : INotifyPropertyChanged
+    internal class MainWindowViewModel : ViewModelBase
     {
         private string m_filename;
-        private Story? m_story;
-        private ObservableCollection<Story> m_stories;
+        private StoryViewModel? m_story;
+        private List<Story> m_stories;
+        private ObservableCollection<FolderViewModel> m_folders;
 
         public MainWindowViewModel()
         {
             m_filename = "";
             m_story = null;
-            m_stories = new ObservableCollection<Story>();
+            m_stories = new List<Story>();
+            m_folders = new ObservableCollection<FolderViewModel>();
         }
 
-        public Story? Story
+        public StoryViewModel? Story
         {
             get => m_story;
             set
@@ -32,6 +34,7 @@ namespace StoryWriter
                 OnPropertyChanged(nameof(Story));
                 OnPropertyChanged(nameof(Title));
                 OnPropertyChanged(nameof(Text));
+                OnPropertyChanged(nameof(Folder));
             }
         }
 
@@ -75,7 +78,27 @@ namespace StoryWriter
             }
         }
 
-        public ObservableCollection<Story> Stories => m_stories;
+        public string Folder
+        {
+            get
+            {
+                if (m_story != null)
+                    return m_story.Folder;
+
+                return "none";
+            }
+
+            set
+            {
+                if (m_story != null)
+                {
+                    m_story.Folder = value;
+                    OnPropertyChanged(nameof(Folder));
+                }
+            }
+        }
+
+        public ObservableCollection<FolderViewModel> Folders => m_folders;
 
         public ICommand NewCommand
         {
@@ -84,11 +107,13 @@ namespace StoryWriter
                 return new DelegateCommand((o) =>
                 {
                     m_story = null;
-                    m_stories = new ObservableCollection<Story>();
+                    m_stories = new List<Story>();
+
+                    Build();
 
                     OnPropertyChanged(nameof(Title));
                     OnPropertyChanged(nameof(Text));
-                    OnPropertyChanged(nameof(Stories));
+                    OnPropertyChanged(nameof(Folders));
                 });
             }
         }
@@ -115,13 +140,15 @@ namespace StoryWriter
                         var stories = JsonSerializer.Deserialize<List<Story>>(text);
 
                         if (stories != null)
-                            m_stories = new ObservableCollection<Story>(stories);
+                            m_stories = stories;
 
-                        m_story = m_stories[0];
+                        Build();
+
+                        m_story = m_folders[0].Children[0];
 
                         OnPropertyChanged(nameof(Title));
                         OnPropertyChanged(nameof(Text));
-                        OnPropertyChanged(nameof(Stories));
+                        OnPropertyChanged(nameof(Folders));
                     }
                 });
             }
@@ -187,16 +214,51 @@ namespace StoryWriter
             }
         }
 
-        private void OnPropertyChanged(string name)
+        private FolderViewModel? FindFolder(string name)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            foreach(var folderViewModel in m_folders)
+            {
+                if (folderViewModel.Title == name)
+                    return folderViewModel;
+            }
+
+            return null;
         }
 
-        internal void SetStory(Story story)
+        private void Build()
+        {
+            m_folders = new ObservableCollection<FolderViewModel>();
+
+            var folders = new List<string>();
+
+            foreach(var story in m_stories)
+            {
+                var folder = story.Folder;
+
+                if (!folders.Contains(folder))
+                    folders.Add(folder);
+            }
+
+            foreach(var folder in folders)
+            {
+                var folderViewModel = new FolderViewModel(folder);
+                m_folders.Add(folderViewModel);
+            }
+
+            foreach(var story in m_stories)
+            {
+                var folderViewModel = FindFolder(story.Folder);
+                if (folderViewModel == null)
+                    continue;
+
+                var storyViewModel = new StoryViewModel(story);
+                folderViewModel.Children.Add(storyViewModel);
+            }
+        }
+
+        internal void SetStory(StoryViewModel story)
         {
             Story = story;
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

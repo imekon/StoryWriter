@@ -23,7 +23,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -34,11 +35,11 @@
                 Grid.Column="0" 
                 Grid.Row="0" 
                 Grid.RowSpan="2"
-                ItemsSource="{Binding Stories}"
+                ItemsSource="{Binding Folders}"
                 SelectedItemChanged="OnSelectedItemChanged"
                 Margin="2">
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Title}"/>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
@@ -54,8 +55,17 @@
                 FontSize="12pt" 
                 Margin="2"/>
             
+            <TextBox
+                Grid.Column="3"
+                Grid.Row="0"
+                Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
+                FontFamily="Consolas" 
+                FontSize="12pt" 
+                Margin="2"/>
+
             <TextBox 
-                Grid.Column="2" 
+                Grid.Column="2"
+                Grid.ColumnSpan="2"
                 Grid.Row="1" 
                 Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
                 FontFamily="Consolas" 
