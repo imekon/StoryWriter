@@ -59,6 +59,14 @@ namespace StoryWriter
             }
         }
 
+        public int WordCount
+        {
+            get
+            {
+                return Helpers.GetWordCount(m_story.Text);
+            }
+        }
+
         public Story Story => m_story;
 
         public ObservableCollection<StoryViewModel> Children => m_children;

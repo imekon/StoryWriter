@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
 
@@ -15,6 +17,7 @@ namespace StoryWriter
         private string m_filename;
         private StoryViewModel? m_story;
         private List<Story> m_stories;
+        private ObservableCollection<StoryViewModel> m_storyViewModels;
         private ObservableCollection<FolderViewModel> m_folders;
 
         public MainWindowViewModel()
@@ -23,6 +26,7 @@ namespace StoryWriter
             m_story = null;
             m_stories = new List<Story>();
             m_folders = new ObservableCollection<FolderViewModel>();
+            m_storyViewModels = new ObservableCollection<StoryViewModel>();
         }
 
         public StoryViewModel? Story
@@ -37,6 +41,8 @@ namespace StoryWriter
                 OnPropertyChanged(nameof(Folder));
             }
         }
+
+        public ObservableCollection<StoryViewModel> Stories => m_storyViewModels;
 
         public string Title
         {
@@ -120,6 +126,21 @@ namespace StoryWriter
 
         public ObservableCollection<FolderViewModel> Folders => m_folders;
 
+        public StoryViewModel SelectedStory
+        {
+            get => m_story;
+            set
+            {
+                m_story = value;
+                OnPropertyChanged(nameof(Story));
+                OnPropertyChanged(nameof(SelectedStory));
+                OnPropertyChanged(nameof(Title));
+                OnPropertyChanged(nameof(Text));
+                OnPropertyChanged(nameof(Folder));
+                OnPropertyChanged(nameof(Tags));
+            }
+        }
+
         public ICommand NewCommand
         {
             get
@@ -164,11 +185,12 @@ namespace StoryWriter
 
                         Build();
 
-                        m_story = m_folders[0].Children[0];
+                        m_story = m_storyViewModels[0];
 
                         OnPropertyChanged(nameof(Title));
                         OnPropertyChanged(nameof(Text));
                         OnPropertyChanged(nameof(Folders));
+                        OnPropertyChanged(nameof(Stories));
                     }
                 });
             }
@@ -260,33 +282,15 @@ namespace StoryWriter
 
         private void Build()
         {
-            m_folders = new ObservableCollection<FolderViewModel>();
-
-            var folders = new List<string>();
-
             foreach(var story in m_stories)
             {
-                var folder = story.Folder;
-
-                if (!folders.Contains(folder))
-                    folders.Add(folder);
-            }
-
-            foreach(var folder in folders)
-            {
-                var folderViewModel = new FolderViewModel(folder);
-                m_folders.Add(folderViewModel);
-            }
-
-            foreach(var story in m_stories)
-            {
-                var folderViewModel = FindFolder(story.Folder);
-                if (folderViewModel == null)
-                    continue;
-
                 var storyViewModel = new StoryViewModel(story);
-                folderViewModel.Children.Add(storyViewModel);
+                m_storyViewModels.Add(storyViewModel);
             }
+
+            var view = CollectionViewSource.GetDefaultView(m_storyViewModels);
+            var groupDesc = new PropertyGroupDescription("Folder");
+            view.GroupDescriptions.Add(groupDesc);
         }
 
         internal void SetStory(StoryViewModel story)
