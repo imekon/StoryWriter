@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace StoryWriter
 {
-    internal class Story
+    public class Story
     {
         private string m_title;
         private string m_text;
@@ -49,6 +50,16 @@ namespace StoryWriter
         {
             get => m_tags;
             set => m_tags = value;
+        }
+
+        public string GetMarkdown()
+        {
+            var markdown = new StringBuilder();
+
+            markdown.AppendLine("# " + m_title + " #");
+            markdown.Append(m_text);
+
+            return markdown.ToString();
         }
     }
 }

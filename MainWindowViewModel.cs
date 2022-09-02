@@ -98,6 +98,26 @@ namespace StoryWriter
             }
         }
 
+        public string Tags
+        {
+            get
+            {
+                if (m_story != null)
+                    return m_story.Tags;
+
+                return "none";
+            }
+
+            set
+            {
+                if (m_story != null)
+                {
+                    m_story.Tags = value;
+                    OnPropertyChanged(nameof(Tags));
+                }
+            }
+        }
+
         public ObservableCollection<FolderViewModel> Folders => m_folders;
 
         public ICommand NewCommand
@@ -210,6 +230,19 @@ namespace StoryWriter
                 return new DelegateCommand((o) =>
                 {
                     Application.Current.Shutdown(0);
+                });
+            }
+        }
+
+        public ICommand MDViewerCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var mdViewerViewModel = new MDViewerWindowViewModel(m_story.Story);
+                    var mdViewer = new MDViewerWindow(mdViewerViewModel);
+                    mdViewer.Show();
                 });
             }
         }

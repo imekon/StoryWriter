@@ -49,6 +49,23 @@ namespace StoryWriter
             }
         }
 
+        public string Tags
+        {
+            get => m_story.Tags;
+            set
+            {
+                m_story.Tags = value;
+                OnPropertyChanged(nameof(Tags));
+            }
+        }
+
+        public Story Story => m_story;
+
         public ObservableCollection<StoryViewModel> Children => m_children;
+
+        public string GetMarkdown()
+        {
+            return m_story.GetMarkdown();
+        }
     }
 }
