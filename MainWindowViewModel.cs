@@ -333,12 +333,29 @@ namespace StoryWriter
             {
                 return new DelegateCommand((o) =>
                 {
-                    var viewModel = new CreateStoryWindowViewModel();
-                    var dialog = new CreateStoryWindow(viewModel);
+                    var dialog = new CreateStoryWindow();
+
+                    if (m_story != null)
+                    {
+                        dialog.StoryTitle = m_story.Title;
+                        dialog.Folder = m_story.Folder;
+                        dialog.Tags = m_story.Tags;
+                    }
 
                     if (dialog.ShowDialog() == true)
                     {
+                        if (m_story != null)
+                        {
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags };
+                            var newStoryViewModel = new StoryViewModel(newStory);
+                            
+                            var index = m_stories.IndexOf(m_story.Story);
+                            m_stories.Insert(index + 1, newStory);
 
+                            m_storyViewModels.Insert(index + 1, newStoryViewModel);
+                            m_modified = true;
+                            OnPropertyChanged(nameof(ApplicationTitle));
+                        }
                     }
                 });
             }

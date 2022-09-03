@@ -4,11 +4,15 @@ namespace StoryWriter
 {
     public class CreateStoryWindowViewModel
     {
-        public CreateStoryWindowViewModel()
+        private CreateStoryWindow m_window;
+
+        public CreateStoryWindowViewModel(CreateStoryWindow window)
         {
             Title = "untitled";
             Folder = "Generic";
             Tags = "";
+
+            m_window = window;
         }
 
         public string Title { get; set; }
@@ -21,7 +25,7 @@ namespace StoryWriter
             {
                 return new DelegateCommand((o) =>
                 {
-                    
+                    m_window.DialogResult = true;
                 });
             }
         }
@@ -32,7 +36,7 @@ namespace StoryWriter
             {
                 return new DelegateCommand((o) =>
                 {
-
+                    m_window.DialogResult = false;
                 });
             }
         }
