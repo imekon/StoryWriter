@@ -4,18 +4,12 @@ namespace StoryWriter
 {
     internal class StoryViewModel : ViewModelBase
     {
-        private Story? m_story;
+        private Story m_story;
         private ObservableCollection<StoryViewModel> m_children;
 
         public StoryViewModel(Story story)
         {
             m_story = story;
-            m_children = new ObservableCollection<StoryViewModel>();
-        }
-
-        public StoryViewModel()
-        {
-            m_story = null;
             m_children = new ObservableCollection<StoryViewModel>();
         }
 

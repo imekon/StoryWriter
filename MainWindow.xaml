@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StoryWriter"
         mc:Ignorable="d"
-        Title="Story Writer" Height="860" Width="1024">
+        Title="{Binding ApplicationTitle}" Height="860" Width="1024">
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
