@@ -15,8 +15,11 @@
                 <MenuItem Header="Save _As..." Command="{Binding SaveAsCommand}"/>
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="_View">
-                <MenuItem Header="_MD" Command="{Binding MDViewerCommand}"/>
+            <MenuItem Header="_Story">
+                <MenuItem Header="_Add..." Command="{Binding AddStoryCommand}"/>
+                <MenuItem Header="_Remove" Command="{Binding RemoveStoryCommand}"/>
+                <Separator/>
+                <MenuItem Header="_View" Command="{Binding MDViewerCommand}"/>
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">

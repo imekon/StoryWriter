@@ -1,0 +1,47 @@
+﻿<Window x:Class="StoryWriter.CreateStoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StoryWriter"
+        mc:Ignorable="d"
+        Title="Create Story" Height="150" Width="400">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Label Content="Story" Grid.Column="0" Grid.Row="0"/>
+        <TextBox Text="{Binding Title}" Grid.Column="1" Grid.Row="0"/>
+
+        <Label Content="Folder" Grid.Column="0" Grid.Row="1"/>
+        <TextBox Text="{Binding Folder}" Grid.Column="1" Grid.Row="1"/>
+
+        <Label Content="Tags" Grid.Column="0" Grid.Row="2"/>
+        <TextBox Text="{Binding Tags}" Grid.Column="1" Grid.Row="2"/>
+
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal">
+            <Button Content="OK" Width="90" Command="{Binding OKCommand}" IsDefault="True"/>
+            <Button Content="Cancel" Width="90" Command="{Binding CancelCommand}" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -327,6 +327,46 @@ namespace StoryWriter
             }
         }
 
+        public ICommand AddStoryCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var viewModel = new CreateStoryWindowViewModel();
+                    var dialog = new CreateStoryWindow(viewModel);
+
+                    if (dialog.ShowDialog() == true)
+                    {
+
+                    }
+                });
+            }
+        }
+
+        public ICommand RemoveStoryCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    if (m_story == null)
+                    {
+                        MessageBox.Show("No story selected to remove", "Story Writer", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    var story = m_story;
+                    m_story = null;
+
+                    m_storyViewModels.Remove(story);
+                    m_stories.Remove(story.Story);
+                    m_modified = true;
+                    OnPropertyChanged(nameof(ApplicationTitle));
+                });
+            }
+        }
+
         public ICommand MDViewerCommand
         {
             get
