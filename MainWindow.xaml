@@ -17,7 +17,7 @@
             </MenuItem>
             <MenuItem Header="_Story">
                 <MenuItem Header="_Add..." Command="{Binding AddStoryCommand}"/>
-                <MenuItem Header="_Duplicate..." Command="{Binding DyplicateStoryCommand}"/>
+                <MenuItem Header="_Duplicate..." Command="{Binding DuplicateStoryCommand}"/>
                 <MenuItem Header="_Remove" Command="{Binding RemoveStoryCommand}"/>
                 <Separator/>
                 <MenuItem Header="_View" Command="{Binding MDViewerCommand}"/>
