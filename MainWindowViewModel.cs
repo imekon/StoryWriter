@@ -356,6 +356,16 @@ namespace StoryWriter
                             m_modified = true;
                             OnPropertyChanged(nameof(ApplicationTitle));
                         }
+                        else
+                        {
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags };
+                            var newStoryViewModel = new StoryViewModel(newStory);
+
+                            m_stories.Add(newStory);
+                            m_storyViewModels.Add(newStoryViewModel);
+                            m_modified = true;
+                            OnPropertyChanged(nameof(ApplicationTitle));
+                        }
                     }
                 });
             }
