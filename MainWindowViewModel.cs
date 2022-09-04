@@ -361,6 +361,40 @@ namespace StoryWriter
             }
         }
 
+        public ICommand DuplicateStoryCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var dialog = new CreateStoryWindow();
+
+                    if (m_story != null)
+                    {
+                        dialog.StoryTitle = m_story.Title;
+                        dialog.Folder = m_story.Folder;
+                        dialog.Tags = m_story.Tags;
+                    }
+
+                    if (dialog.ShowDialog() == true)
+                    {
+                        if (m_story != null)
+                        {
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags, Text = m_story.Text };
+                            var newStoryViewModel = new StoryViewModel(newStory);
+
+                            var index = m_stories.IndexOf(m_story.Story);
+                            m_stories.Insert(index + 1, newStory);
+
+                            m_storyViewModels.Insert(index + 1, newStoryViewModel);
+                            m_modified = true;
+                            OnPropertyChanged(nameof(ApplicationTitle));
+                        }
+                    }
+                });
+            }
+        }
+
         public ICommand RemoveStoryCommand
         {
             get
