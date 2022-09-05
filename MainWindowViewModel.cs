@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
@@ -6,7 +7,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using MoonSharp.Interpreter;
 
 namespace StoryWriter
 {
@@ -19,16 +20,30 @@ namespace StoryWriter
         private ObservableCollection<StoryViewModel> m_storyViewModels;
         private ObservableCollection<FolderViewModel> m_folders;
 
+        private Script m_script;
+
+        private static MainWindowViewModel? m_instance;
+
         public MainWindowViewModel()
         {
+            m_instance = this;
+
             m_modified = false;
             m_filename = "";
             m_story = null;
             m_stories = new List<Story>();
             m_folders = new ObservableCollection<FolderViewModel>();
             m_storyViewModels = new ObservableCollection<StoryViewModel>();
+
+            m_script = new Script();
+
+            UserData.RegisterType<Story>();
+
+            m_script.Globals["StoryCount"] = (Func<int>)GetStoryCount;
+            m_script.Globals["GetStory"] = (Func<int, Story?>)GetStory;
         }
 
+        #region Parameters
         public StoryViewModel? Story
         {
             get => m_story;
@@ -164,7 +179,9 @@ namespace StoryWriter
                 OnPropertyChanged(nameof(Tags));
             }
         }
+        #endregion
 
+        #region Commands
         public ICommand NewCommand
         {
             get
@@ -443,6 +460,64 @@ namespace StoryWriter
                 });
             }
         }
+
+        public ICommand RunScriptCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var dialog = new OpenFileDialog
+                    {
+                        Title = "Run script",
+                        DefaultExt = ".lua",
+                        Filter = "Lua scripts (*.lua)|*.lua"
+                    };
+
+                    if (dialog.ShowDialog() == true)
+                    {
+                        try
+                        {
+                            m_script.DoFile(dialog.FileName);
+                        }
+                        catch(InternalErrorException e)
+                        {
+                            MessageBox.Show($"Error running script: {e.Message}");
+                        }
+                        catch(SyntaxErrorException e)
+                        {
+                            MessageBox.Show($"Error running script: {e.Message}");
+                        }
+                        catch(ScriptRuntimeException e)
+                        {
+                            MessageBox.Show($"Error running script: {e.DecoratedMessage}");
+                        }
+                    }
+                });
+            }
+        }
+
+        #endregion
+
+        #region Lua functions
+
+        private static int GetStoryCount()
+        {
+            if (m_instance == null)
+                return 0;
+
+            return m_instance.m_stories.Count;
+        }
+
+        private static Story? GetStory(int index)
+        {
+            if (m_instance == null)
+                return null;
+
+            return m_instance.m_stories[index];
+        }
+
+        #endregion
 
         private FolderViewModel? FindFolder(string name)
         {

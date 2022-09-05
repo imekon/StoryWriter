@@ -52,6 +52,16 @@ namespace StoryWriter
             set => m_tags = value;
         }
 
+        public int CharacterCount
+        {
+            get => Helpers.GetCharacterCount(m_text);
+        }
+
+        public int WordCount
+        {
+            get => Helpers.GetWordCount(m_text);
+        }
+
         public string GetMarkdown()
         {
             var markdown = new StringBuilder();

@@ -2,6 +2,21 @@
 {
     internal static class Helpers
     {
+        public static int GetCharacterCount(string text)
+        {
+            int total = 0;
+
+            foreach(var ch in text)
+            {
+                if (char.IsWhiteSpace(ch))
+                    continue;
+
+                total++;
+            }
+
+            return total;
+        }
+
         public static int GetWordCount(string text)
         {
             int wordCount = 0, index = 0;

@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="MdXaml" Version="1.15.0" />
+    <PackageReference Include="MoonSharp" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

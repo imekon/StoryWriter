@@ -22,6 +22,9 @@
                 <Separator/>
                 <MenuItem Header="_View" Command="{Binding MDViewerCommand}"/>
             </MenuItem>
+            <MenuItem Header="S_cript">
+                <MenuItem Header="_Run..." Command="{Binding RunScriptCommand}"/>
+            </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem Content="Ready"/>

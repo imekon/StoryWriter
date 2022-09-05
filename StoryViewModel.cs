@@ -57,7 +57,7 @@ namespace StoryWriter
         {
             get
             {
-                return Helpers.GetWordCount(m_story.Text);
+                return m_story.WordCount;
             }
         }
 
