@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Drawing.Printing;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -39,8 +41,10 @@ namespace StoryWriter
 
             UserData.RegisterType<Story>();
 
-            m_script.Globals["StoryCount"] = (Func<int>)GetStoryCount;
+            m_script.Globals["GetStoryCount"] = (Func<int>)GetStoryCount;
             m_script.Globals["GetStory"] = (Func<int, Story?>)GetStory;
+
+            m_script.Options.DebugPrint = s => Print(s);
         }
 
         #region Parameters
@@ -515,6 +519,11 @@ namespace StoryWriter
                 return null;
 
             return m_instance.m_stories[index];
+        }
+
+        private static void Print(string text)
+        {
+            Trace.WriteLine(text);
         }
 
         #endregion

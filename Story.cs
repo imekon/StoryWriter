@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -50,6 +51,44 @@ namespace StoryWriter
         {
             get => m_tags;
             set => m_tags = value;
+        }
+
+        public bool Contains(string text)
+        {
+            return m_text.Contains(text);
+        }
+
+        public string[] GetTags()
+        {
+            return m_tags.Split(",");
+        }
+
+        public bool AddTag(string tag)
+        {
+            var tags = new List<string>(GetTags());
+
+            if (tags.Contains(tag))
+                return false;
+
+            tags.Add(tag);
+
+            m_tags = string.Join(",", tags);
+
+            return true;
+        }
+
+        public bool RemoveTag(string tag)
+        {
+            var tags = new List<string>(GetTags());
+
+            if (!tags.Contains(tag))
+                return false;
+
+            tags.Remove(tag);
+
+            m_tags = string.Join(",", tags);
+
+            return true;
         }
 
         public int CharacterCount
