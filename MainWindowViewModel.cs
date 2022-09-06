@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Data;
@@ -19,6 +20,7 @@ namespace StoryWriter
         private string m_filename;
         private StoryViewModel? m_story;
         private List<Story> m_stories;
+        private string m_statusText;
         private ObservableCollection<StoryViewModel> m_storyViewModels;
         private ObservableCollection<FolderViewModel> m_folders;
 
@@ -45,6 +47,8 @@ namespace StoryWriter
             m_script.Globals["GetStory"] = (Func<int, Story?>)GetStory;
 
             m_script.Options.DebugPrint = s => Print(s);
+
+            m_statusText = "";
         }
 
         #region Parameters
@@ -183,6 +187,8 @@ namespace StoryWriter
                 OnPropertyChanged(nameof(Tags));
             }
         }
+
+        public string StatusText => m_statusText;
         #endregion
 
         #region Commands
@@ -524,6 +530,9 @@ namespace StoryWriter
         private static void Print(string text)
         {
             Trace.WriteLine(text);
+
+            if (m_instance != null)
+                m_instance.AddStatusText(text);
         }
 
         #endregion
@@ -550,6 +559,14 @@ namespace StoryWriter
             var view = CollectionViewSource.GetDefaultView(m_storyViewModels);
             var groupDesc = new PropertyGroupDescription("Folder");
             view.GroupDescriptions.Add(groupDesc);
+        }
+
+        private void AddStatusText(string text)
+        {
+            var updated = new StringBuilder(m_statusText);
+            updated.AppendLine(text);
+            m_statusText = updated.ToString();
+            OnPropertyChanged(nameof(StatusText));
         }
     }
 }
