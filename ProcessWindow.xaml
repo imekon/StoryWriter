@@ -23,9 +23,10 @@
         <Label Content="Path" Grid.Column="0" Grid.Row="0"/>
         <TextBox Text="{Binding ProcessPath}" Grid.Column="1" Grid.Row="0" Margin="2"/>
         <Button Content="Process" Grid.Column="2" Grid.Row="0" Command="{Binding ProcessCommand}" Margin="2" Width="90"/>
-        <DataGrid AutoGenerateColumns="False" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" ItemsSource="{Binding ProcessStories}">
+        <DataGrid AutoGenerateColumns="False" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" ItemsSource="{Binding ProcessStories}" GridLinesVisibility="None" AlternatingRowBackground="AliceBlue">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="120"/>
+                <DataGridTextColumn Header="Word Count" Binding="{Binding WordCount}" Width="90"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
