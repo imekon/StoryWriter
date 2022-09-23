@@ -306,6 +306,18 @@ namespace StoryWriter
             }
         }
 
+        public ICommand ProcessCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) => 
+                {
+                    var processWindow = new ProcessWindow();
+                    processWindow.Show();
+                });
+            }
+        }
+
         public ICommand ExitCommand
         {
             get

@@ -13,6 +13,9 @@
                 <MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
                 <MenuItem Header="_Save" Command="{Binding SaveCommand}"/>
                 <MenuItem Header="Save _As..." Command="{Binding SaveAsCommand}"/>
+                <Separator/>
+                <MenuItem Header="Pro_cess..." Command="{Binding ProcessCommand}"/>
+                <Separator/>
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="_Story">
