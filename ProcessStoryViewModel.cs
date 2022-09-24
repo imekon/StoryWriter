@@ -12,6 +12,8 @@ namespace StoryWriter
             this.story = story;
         }
 
+        public Story Story => story;
+
         public string Title
         {
             get => story.Title;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Drawing.Printing;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
 using MoonSharp.Interpreter;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace StoryWriter
 {
@@ -52,6 +52,8 @@ namespace StoryWriter
         }
 
         #region Parameters
+        public static MainWindowViewModel? Instance => m_instance;
+
         public StoryViewModel? Story
         {
             get => m_story;
@@ -579,6 +581,16 @@ namespace StoryWriter
             updated.AppendLine(text);
             m_statusText = updated.ToString();
             OnPropertyChanged(nameof(StatusText));
+        }
+
+        public void AddStory(Story story)
+        {
+            var newStoryViewModel = new StoryViewModel(story);
+            m_stories.Add(story);
+
+            m_storyViewModels.Add(newStoryViewModel);
+            m_modified = true;
+            OnPropertyChanged(nameof(ApplicationTitle));
         }
     }
 }

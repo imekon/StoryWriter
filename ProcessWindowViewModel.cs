@@ -37,8 +37,27 @@ namespace StoryWriter
                         var story = new Story();
                         story.Title = Path.GetFileNameWithoutExtension(filename);
                         story.Text = File.ReadAllText(filename);
+                        story.Folder = "Imported";
                         var storyViewModel = new ProcessStoryViewModel(story);
                         processStories.Add(storyViewModel);
+                    }
+                });
+            }
+        }
+
+        public ICommand ImportAllCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var mainWindow = MainWindowViewModel.Instance;
+                    if (mainWindow == null)
+                        return;
+
+                    foreach(var processStoryViewModel in processStories)
+                    {
+                        mainWindow.AddStory(processStoryViewModel.Story);
                     }
                 });
             }
