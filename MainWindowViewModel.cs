@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -10,7 +11,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
 using MoonSharp.Interpreter;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace StoryWriter
 {
@@ -21,6 +21,8 @@ namespace StoryWriter
         private StoryViewModel? m_story;
         private List<Story> m_stories;
         private string m_statusText;
+        private byte[]? m_key;
+        private KeySetting m_keySetting;
         private ObservableCollection<StoryViewModel> m_storyViewModels;
         private ObservableCollection<FolderViewModel> m_folders;
 
@@ -30,6 +32,33 @@ namespace StoryWriter
 
         public MainWindowViewModel()
         {
+            var appSettings = ConfigurationManager.AppSettings;
+
+            var keyed = appSettings["Keyed"];
+            switch(keyed)
+            {
+                case "None":
+                    m_keySetting = KeySetting.None;
+                    break;
+
+                case "OnLoad":
+                    m_keySetting = KeySetting.OnLoad;
+                    break;
+
+                case "OnSave":
+                    m_keySetting = KeySetting.OnSave;
+                    break;
+
+                default:
+                    m_keySetting = KeySetting.All;
+                    break;
+            }
+
+            var keyFile = appSettings["KeyFile"];
+            m_key = null;
+            if (keyFile != null)
+                m_key = File.ReadAllBytes(keyFile);
+
             m_instance = this;
 
             m_modified = false;
@@ -214,6 +243,25 @@ namespace StoryWriter
             }
         }
 
+        private void LoadStories(string filename)
+        {
+            var text = File.ReadAllText(filename);
+            var stories = JsonSerializer.Deserialize<List<Story>>(text);
+
+            if (stories != null)
+                m_stories = stories;
+        }
+
+        private void SaveStories(string filename)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            var text = JsonSerializer.Serialize(m_stories, options);
+            File.WriteAllText(filename, text);
+        }
+
         public ICommand OpenCommand
         {
             get
@@ -232,13 +280,7 @@ namespace StoryWriter
                     {
                         m_modified = false;
                         m_filename = dialog.FileName;
-
-                        var text = File.ReadAllText(dialog.FileName);
-                        var stories = JsonSerializer.Deserialize<List<Story>>(text);
-
-                        if (stories != null)
-                            m_stories = stories;
-
+                        LoadStories(dialog.FileName);
                         Build();
 
                         m_story = m_storyViewModels[0];
@@ -262,14 +304,7 @@ namespace StoryWriter
                     if (string.IsNullOrEmpty(m_filename))
                         return;
 
-
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = true
-                    };
-                    var text = JsonSerializer.Serialize(m_stories, options);
-                    File.WriteAllText(m_filename, text);
-                    
+                    SaveStories(m_filename);                    
                     m_modified = false;
                     OnPropertyChanged(nameof(ApplicationTitle));
                 });
@@ -293,14 +328,7 @@ namespace StoryWriter
                     if (dialog.ShowDialog() == true)
                     {
                         m_filename = dialog.FileName;
-
-                        var options = new JsonSerializerOptions
-                        {
-                            WriteIndented = true
-                        };
-                        var text = JsonSerializer.Serialize(m_stories, options);
-                        File.WriteAllText(dialog.FileName, text);
-
+                        SaveStories(m_filename);
                         m_modified = false;
                         OnPropertyChanged(nameof(ApplicationTitle));
                     }
@@ -316,6 +344,30 @@ namespace StoryWriter
                 {
                     var processWindow = new ProcessWindow();
                     processWindow.Show();
+                });
+            }
+        }
+
+        public ICommand GenerateCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var dialog = new SaveFileDialog
+                    {
+                        Title = "Generate Key",
+                        DefaultExt = ".key",
+                        Filter = "Key (*.key)|*.key"
+                    };
+
+                    if (dialog.ShowDialog() == true)
+                    {
+                        var random = new Random();
+                        var bytes = new byte[32];
+                        random.NextBytes(bytes);
+                        File.WriteAllBytes(dialog.FileName, bytes);
+                    }
                 });
             }
         }

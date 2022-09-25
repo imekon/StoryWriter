@@ -16,6 +16,8 @@
                 <Separator/>
                 <MenuItem Header="Pro_cess..." Command="{Binding ProcessCommand}"/>
                 <Separator/>
+                <MenuItem Header="_Generate..." Command="{Binding GenerateCommand}"/>
+                <Separator/>
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="_Story">
