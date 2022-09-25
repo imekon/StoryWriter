@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -241,25 +242,6 @@ namespace StoryWriter
                     OnPropertyChanged(nameof(Folders));
                 });
             }
-        }
-
-        private void LoadStories(string filename)
-        {
-            var text = File.ReadAllText(filename);
-            var stories = JsonSerializer.Deserialize<List<Story>>(text);
-
-            if (stories != null)
-                m_stories = stories;
-        }
-
-        private void SaveStories(string filename)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            var text = JsonSerializer.Serialize(m_stories, options);
-            File.WriteAllText(filename, text);
         }
 
         public ICommand OpenCommand
@@ -644,5 +626,108 @@ namespace StoryWriter
             m_modified = true;
             OnPropertyChanged(nameof(ApplicationTitle));
         }
+
+        private void LoadStories(string filename)
+        {
+            if (m_keySetting == KeySetting.OnLoad || m_keySetting == KeySetting.All)
+            {
+                if (m_key == null)
+                {
+                    MessageBox.Show("Key not set", "Story Writer", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                using (FileStream readFileStream = new(filename, FileMode.Open))
+                {
+                    using (Aes aes = Aes.Create())
+                    {
+                        byte[] iv = new byte[aes.IV.Length];
+                        int numBytesToRead = aes.IV.Length;
+                        int numBytesRead = 0;
+                        while (numBytesToRead > 0)
+                        {
+                            int n = readFileStream.Read(iv, numBytesRead, numBytesToRead);
+                            if (n == 0) break;
+
+                            numBytesRead += n;
+                            numBytesToRead -= n;
+                        }
+
+                        using (CryptoStream cryptoStream = new(
+                        readFileStream,
+                           aes.CreateDecryptor(m_key, iv),
+                           CryptoStreamMode.Read))
+                        {
+                            using (StreamReader decryptReader = new(cryptoStream))
+                            {
+                                string text = decryptReader.ReadToEnd();
+                                var stories = JsonSerializer.Deserialize<List<Story>>(text);
+
+                                if (stories != null)
+                                    m_stories = stories;
+                            }
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                var text = File.ReadAllText(filename);
+                var stories = JsonSerializer.Deserialize<List<Story>>(text);
+
+                if (stories != null)
+                    m_stories = stories;
+            }
+        }
+
+        private void SaveStories(string filename)
+        {
+            if (m_keySetting == KeySetting.OnSave || m_keySetting == KeySetting.All)
+            {
+                if (m_key == null)
+                {
+                    MessageBox.Show("Key not set", "Story Writer", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                var text = JsonSerializer.Serialize(m_stories, options);
+
+                using (FileStream writeFileStream = new(filename, FileMode.OpenOrCreate))
+                {
+                    using (Aes aes = Aes.Create())
+                    {
+                        aes.Key = m_key;
+
+                        byte[] iv = aes.IV;
+                        writeFileStream.Write(iv, 0, iv.Length);
+
+                        using (CryptoStream cryptoStream = new(writeFileStream,
+                            aes.CreateEncryptor(),
+                            CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter encryptWriter = new(cryptoStream))
+                            {
+                                encryptWriter.Write(text);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                var text = JsonSerializer.Serialize(m_stories, options);
+                File.WriteAllText(filename, text);
+            }
+        }
+
     }
 }
