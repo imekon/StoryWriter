@@ -24,6 +24,7 @@ namespace StoryWriter
         private string m_statusText;
         private byte[]? m_key;
         private KeySetting m_keySetting;
+        private string m_scrambled;
         private ObservableCollection<StoryViewModel> m_storyViewModels;
         private ObservableCollection<FolderViewModel> m_folders;
 
@@ -56,6 +57,7 @@ namespace StoryWriter
             }
 
             var keyFile = appSettings["KeyFile"];
+            m_scrambled = appSettings["Failed"]!;
             m_key = null;
             if (keyFile != null)
                 m_key = File.ReadAllBytes(keyFile);
@@ -661,7 +663,18 @@ namespace StoryWriter
                             using (StreamReader decryptReader = new(cryptoStream))
                             {
                                 string text = decryptReader.ReadToEnd();
-                                var stories = JsonSerializer.Deserialize<List<Story>>(text);
+                                var stories = new List<Story>();
+                                try
+                                {
+                                    stories = JsonSerializer.Deserialize<List<Story>>(text);
+                                }
+                                catch(Exception e)
+                                {
+                                    var scrambled = new StringBuilder(text);
+                                    scrambled.AppendLine(e.Message);
+                                    File.WriteAllText(m_scrambled, scrambled.ToString());
+                                    return;
+                                }
 
                                 if (stories != null)
                                     m_stories = stories;
