@@ -58,6 +58,10 @@ namespace StoryWriter
 
             var keyFile = appSettings["KeyFile"];
             m_scrambled = appSettings["Failed"]!;
+            m_filename = appSettings["StoryFile"]!;
+            if (string.IsNullOrEmpty(m_filename))
+                m_filename = "";
+
             m_key = null;
             if (keyFile != null)
                 m_key = File.ReadAllBytes(keyFile);
@@ -65,7 +69,6 @@ namespace StoryWriter
             m_instance = this;
 
             m_modified = false;
-            m_filename = "";
             m_story = null;
             m_stories = new List<Story>();
             m_folders = new ObservableCollection<FolderViewModel>();
