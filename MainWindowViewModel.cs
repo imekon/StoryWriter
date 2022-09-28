@@ -19,6 +19,7 @@ namespace StoryWriter
     {
         private bool m_modified;
         private string m_filename;
+        private string m_backupname;
         private StoryViewModel? m_story;
         private List<Story> m_stories;
         private string m_statusText;
@@ -61,6 +62,10 @@ namespace StoryWriter
             m_filename = appSettings["StoryFile"]!;
             if (string.IsNullOrEmpty(m_filename))
                 m_filename = "";
+
+            m_backupname = appSettings["Backup"]!;
+            if (string.IsNullOrEmpty(m_backupname))
+                m_backupname = "";
 
             m_key = null;
             if (keyFile != null)
@@ -382,22 +387,12 @@ namespace StoryWriter
 
                                 if (dialog.ShowDialog() == true)
                                 {
-                                    var options = new JsonSerializerOptions
-                                    {
-                                        WriteIndented = true
-                                    };
-                                    var text = JsonSerializer.Serialize(m_stories, options);
-                                    File.WriteAllText(dialog.FileName, text);
+                                    SaveStories(dialog.FileName);
                                 }
                             }
                             else
                             {
-                                var options = new JsonSerializerOptions
-                                {
-                                    WriteIndented = true
-                                };
-                                var text = JsonSerializer.Serialize(m_stories, options);
-                                File.WriteAllText(m_filename, text);
+                                SaveStories(m_filename);
                             }
                         }
                     }
@@ -590,6 +585,7 @@ namespace StoryWriter
 
         #endregion
 
+        #region Private functions
         private FolderViewModel? FindFolder(string name)
         {
             foreach(var folderViewModel in m_folders)
@@ -697,6 +693,16 @@ namespace StoryWriter
             }
         }
 
+        private void MakeBackup(string filename)
+        {
+            Trace.WriteLine("Making backup");
+            if (!string.IsNullOrEmpty(m_backupname) && File.Exists(filename))
+            {
+                Trace.WriteLine("Copying original to backup");
+                File.Copy(filename, m_backupname, true);
+            }
+        }
+
         private void SaveStories(string filename)
         {
             if (m_keySetting == KeySetting.OnSave || m_keySetting == KeySetting.All)
@@ -712,7 +718,7 @@ namespace StoryWriter
                     WriteIndented = true
                 };
                 var text = JsonSerializer.Serialize(m_stories, options);
-
+                MakeBackup(filename);
                 using (FileStream writeFileStream = new(filename, FileMode.OpenOrCreate))
                 {
                     using (Aes aes = Aes.Create())
@@ -741,9 +747,10 @@ namespace StoryWriter
                     WriteIndented = true
                 };
                 var text = JsonSerializer.Serialize(m_stories, options);
+                MakeBackup(filename);
                 File.WriteAllText(filename, text);
             }
         }
-
+        #endregion
     }
 }
