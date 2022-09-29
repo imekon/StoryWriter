@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
 namespace StoryWriter
 {
-    public class Story
+    public class Story : IComparable<Story>
     {
         private string m_title;
         private string m_text;
@@ -109,6 +110,39 @@ namespace StoryWriter
             markdown.Append(m_text);
 
             return markdown.ToString();
+        }
+
+        //public int Compare(Story? x, Story? y)
+        //{
+        //    if (x == null && y == null)
+        //        return 0;
+
+        //    if (x == null)
+        //        return -1;
+
+        //    if (y == null)
+        //        return 1;
+
+        //    // Compare folders first
+        //    var result = x.Folder.CompareTo(y.Folder);
+
+        //    if (result != 0)
+        //        return result;
+
+        //    result = x.Title.CompareTo(y.Title);
+        //    return result;
+        //}
+
+        public int CompareTo(Story? story)
+        {
+            if (story == null)
+                return 1;
+
+            var result = CompareTo(story);
+            if (result != 0)
+                return result;
+
+            return m_title.CompareTo(story.Title);
         }
     }
 }

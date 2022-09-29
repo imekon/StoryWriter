@@ -503,6 +503,18 @@ namespace StoryWriter
             }
         }
 
+        public ICommand SortStoriesCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    m_stories.Sort();
+                    Build();
+                });
+            }
+        }
+
         public ICommand MDViewerCommand
         {
             get
@@ -599,6 +611,8 @@ namespace StoryWriter
 
         private void Build()
         {
+            m_storyViewModels.Clear();
+
             foreach(var story in m_stories)
             {
                 var storyViewModel = new StoryViewModel(story);

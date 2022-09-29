@@ -25,6 +25,8 @@
                 <MenuItem Header="_Duplicate..." Command="{Binding DuplicateStoryCommand}"/>
                 <MenuItem Header="_Remove" Command="{Binding RemoveStoryCommand}"/>
                 <Separator/>
+                <MenuItem Header="_Sort" Command="{Binding SortStoriesCommand}"/>
+                <Separator/>
                 <MenuItem Header="_View" Command="{Binding MDViewerCommand}"/>
             </MenuItem>
             <MenuItem Header="S_cript">
