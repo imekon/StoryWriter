@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using LiteDB;
 using Microsoft.Win32;
 using MoonSharp.Interpreter;
 
@@ -50,6 +51,14 @@ namespace StoryWriter
 
                 case "OnSave":
                     m_keySetting = KeySetting.OnSave;
+                    break;
+
+                case "DbLoad":
+                    m_keySetting = KeySetting.DbLoad;
+                    break;
+
+                case "DbSave":
+                    m_keySetting = KeySetting.DbSave;
                     break;
 
                 default:
@@ -644,7 +653,7 @@ namespace StoryWriter
 
         private void LoadStories(string filename)
         {
-            if (m_keySetting == KeySetting.OnLoad || m_keySetting == KeySetting.All)
+            if (m_keySetting == KeySetting.OnLoad || m_keySetting == KeySetting.DbSave || m_keySetting == KeySetting.All)
             {
                 if (m_key == null)
                 {
@@ -679,7 +688,7 @@ namespace StoryWriter
                                 var stories = new List<Story>();
                                 try
                                 {
-                                    stories = JsonSerializer.Deserialize<List<Story>>(text);
+                                    stories = System.Text.Json.JsonSerializer.Deserialize<List<Story>>(text);
                                 }
                                 catch(Exception e)
                                 {
@@ -695,12 +704,11 @@ namespace StoryWriter
                         }
                     }
                 }
-
             }
             else
             {
                 var text = File.ReadAllText(filename);
-                var stories = JsonSerializer.Deserialize<List<Story>>(text);
+                var stories = System.Text.Json.JsonSerializer.Deserialize<List<Story>>(text);
 
                 if (stories != null)
                     m_stories = stories;
@@ -731,7 +739,7 @@ namespace StoryWriter
                 {
                     WriteIndented = true
                 };
-                var text = JsonSerializer.Serialize(m_stories, options);
+                var text = System.Text.Json.JsonSerializer.Serialize(m_stories, options);
                 MakeBackup(filename);
                 using (FileStream writeFileStream = new(filename, FileMode.OpenOrCreate))
                 {
@@ -754,13 +762,27 @@ namespace StoryWriter
                     }
                 }
             }
+            else if (m_keySetting == KeySetting.DbSave)
+            {
+                using (var db = new LiteDatabase(filename))
+                {
+                    var stories = db.GetCollection<Story>("stories");
+
+                    foreach(var story in m_stories)
+                    {
+                        stories.Insert(story);
+                    }
+
+                    stories.EnsureIndex(t => t.Title);
+                }
+            }
             else
             {
                 var options = new JsonSerializerOptions
                 {
                     WriteIndented = true
                 };
-                var text = JsonSerializer.Serialize(m_stories, options);
+                var text = System.Text.Json.JsonSerializer.Serialize(m_stories, options);
                 MakeBackup(filename);
                 File.WriteAllText(filename, text);
             }

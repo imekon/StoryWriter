@@ -5,6 +5,8 @@
         None,
         OnSave,
         OnLoad,
+        DbSave,
+        DbLoad,
         All
     }
 }
