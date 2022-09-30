@@ -653,7 +653,7 @@ namespace StoryWriter
 
         private void LoadStories(string filename)
         {
-            if (m_keySetting == KeySetting.OnLoad || m_keySetting == KeySetting.DbSave || m_keySetting == KeySetting.All)
+            if (m_keySetting == KeySetting.OnLoad)
             {
                 if (m_key == null)
                 {
@@ -703,6 +703,21 @@ namespace StoryWriter
                             }
                         }
                     }
+                }
+            }
+            else if (m_keySetting == KeySetting.DbLoad || m_keySetting == KeySetting.All)
+            {
+                m_stories.Clear();
+
+                using(var stories = new LiteDatabase(filename))
+                {
+                    var col = stories.GetCollection<Story>("stories");
+                    if (col == null)
+                        return;
+
+                    m_stories = col.Query()
+                        .OrderBy(x => x.Folder + x.Title)
+                        .ToList();
                 }
             }
             else
