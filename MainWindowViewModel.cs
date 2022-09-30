@@ -25,6 +25,7 @@ namespace StoryWriter
         private List<Story> m_stories;
         private string m_statusText;
         private byte[]? m_key;
+        private string? m_password;
         private KeySetting m_keySetting;
         private string m_scrambled;
         private ObservableCollection<StoryViewModel> m_storyViewModels;
@@ -79,6 +80,11 @@ namespace StoryWriter
             m_key = null;
             if (keyFile != null)
                 m_key = File.ReadAllBytes(keyFile);
+
+            m_password = null;
+            var passwordFile = appSettings["Password"];
+            if (!string.IsNullOrEmpty(passwordFile) && File.Exists(passwordFile))
+                m_password = File.ReadAllText(passwordFile);
 
             m_instance = this;
 
@@ -364,10 +370,13 @@ namespace StoryWriter
 
                     if (dialog.ShowDialog() == true)
                     {
-                        var random = new Random();
-                        var bytes = new byte[32];
-                        random.NextBytes(bytes);
-                        File.WriteAllBytes(dialog.FileName, bytes);
+                        var password = GeneratePassword(32);
+                        File.WriteAllText(dialog.FileName, password);
+                        // Encrypted key, 32 random bytes
+                        //var random = new Random();
+                        //var bytes = new byte[32];
+                        //random.NextBytes(bytes);
+                        //File.WriteAllBytes(dialog.FileName, bytes);
                     }
                 });
             }
@@ -595,6 +604,18 @@ namespace StoryWriter
         #endregion
 
         #region Private functions
+        static string GeneratePassword(int length)
+        {
+            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_!$%&*@#";
+            var res = new StringBuilder();
+            Random rnd = new Random();
+            while (0 < length--)
+            {
+                res.Append(valid[rnd.Next(valid.Length)]);
+            }
+            return res.ToString();
+        }
+
         private FolderViewModel? FindFolder(string name)
         {
             foreach(var folderViewModel in m_folders)
@@ -697,7 +718,7 @@ namespace StoryWriter
             {
                 m_stories.Clear();
 
-                using(var stories = new LiteDatabase(filename))
+                using(var stories = new LiteDatabase($"Filename={filename};Password={m_password}"))
                 {
                     var col = stories.GetCollection<Story>("stories");
                     if (col == null)
@@ -733,7 +754,7 @@ namespace StoryWriter
 
         private void SaveStories(string filename)
         {
-            if (m_keySetting == KeySetting.OnSave || m_keySetting == KeySetting.All)
+            if (m_keySetting == KeySetting.OnSave)
             {
                 if (m_key == null)
                 {
@@ -768,9 +789,12 @@ namespace StoryWriter
                     }
                 }
             }
-            else if (m_keySetting == KeySetting.DbSave)
+            else if (m_keySetting == KeySetting.DbSave || m_keySetting == KeySetting.All)
             {
-                using (var db = new LiteDatabase(filename))
+                if (File.Exists(filename))
+                    File.Delete(filename);
+
+                using (var db = new LiteDatabase($"Filename={filename};Password={m_password}"))
                 {
                     var stories = db.GetCollection<Story>("stories");
 
