@@ -729,7 +729,7 @@ namespace StoryWriter
                         .ToList();
 
                     foreach (var story in m_stories)
-                        story.IsModified = false;
+                        story.State = StoryState.Normal;
                 }
             }
             else
@@ -829,11 +829,25 @@ namespace StoryWriter
 
                 foreach (var story in m_stories)
                 {
-                    if (story.IsModified)
+                    switch(story.State)
                     {
-                        stories.Update(story);
-                        story.IsModified = false;
+                        case StoryState.Normal:
+                            break;
+
+                        case StoryState.Modified:
+                            stories.Update(story);
+                            break;
+
+                        case StoryState.Created:
+                            stories.Insert(story);
+                            break;
+
+                        case StoryState.Deleted:
+                            stories.Delete(story.Id);
+                            break;
                     }
+
+                    story.State = StoryState.Normal;
                 }
             }
         }

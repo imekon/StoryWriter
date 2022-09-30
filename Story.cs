@@ -12,7 +12,7 @@ namespace StoryWriter
         private string m_text;
         private string m_folder;
         private string m_tags;
-        private bool m_modified;
+        private StoryState m_state;
 
         public Story()
         {
@@ -20,7 +20,7 @@ namespace StoryWriter
             m_text = "";
             m_folder = "Generic";
             m_tags = "";
-            m_modified = false;
+            m_state = StoryState.Normal;
         }
 
         [JsonIgnore]
@@ -28,10 +28,10 @@ namespace StoryWriter
 
         [BsonIgnore]
         [JsonIgnore]
-        public bool IsModified
+        public StoryState State
         {
-            get => m_modified;
-            set => m_modified = value;
+            get => m_state;
+            set => m_state = value;
         }
 
         public string Title
@@ -40,7 +40,8 @@ namespace StoryWriter
             set
             {
                 m_title = value;
-                m_modified = true;
+                if (m_state == StoryState.Normal)
+                    m_state = StoryState.Modified;
             }
         }
 
@@ -50,7 +51,8 @@ namespace StoryWriter
             set
             {
                 m_text = value;
-                m_modified = true;
+                if (m_state == StoryState.Normal)
+                    m_state = StoryState.Modified;
             }
         }
 
@@ -60,7 +62,8 @@ namespace StoryWriter
             set
             {
                 m_folder = value;
-                m_modified = true;
+                if (m_state == StoryState.Normal)
+                    m_state = StoryState.Modified;
             }
         }
 
@@ -70,7 +73,8 @@ namespace StoryWriter
             set
             {
                 m_tags = value;
-                m_modified = true;
+                if (m_state == StoryState.Normal)
+                    m_state = StoryState.Modified;
             }
         }
 
@@ -94,7 +98,8 @@ namespace StoryWriter
             tags.Add(tag);
 
             m_tags = string.Join(",", tags);
-            m_modified = true;
+            if (m_state == StoryState.Normal)
+                m_state = StoryState.Modified;
 
             return true;
         }
@@ -109,7 +114,8 @@ namespace StoryWriter
             tags.Remove(tag);
 
             m_tags = string.Join(",", tags);
-            m_modified = true;
+            if (m_state == StoryState.Normal)
+                m_state = StoryState.Modified;
 
             return true;
         }
