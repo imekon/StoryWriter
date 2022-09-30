@@ -305,7 +305,7 @@ namespace StoryWriter
                     if (string.IsNullOrEmpty(m_filename))
                         return;
 
-                    SaveStories(m_filename);                    
+                    UpdateStories(m_filename);                    
                     m_modified = false;
                     OnPropertyChanged(nameof(ApplicationTitle));
                 });
@@ -401,7 +401,7 @@ namespace StoryWriter
                             }
                             else
                             {
-                                SaveStories(m_filename);
+                                UpdateStories(m_filename);
                             }
                         }
                     }
@@ -508,18 +508,6 @@ namespace StoryWriter
                     m_stories.Remove(story.Story);
                     m_modified = true;
                     OnPropertyChanged(nameof(ApplicationTitle));
-                });
-            }
-        }
-
-        public ICommand SortStoriesCommand
-        {
-            get
-            {
-                return new DelegateCommand((o) =>
-                {
-                    m_stories.Sort();
-                    Build();
                 });
             }
         }
@@ -718,6 +706,9 @@ namespace StoryWriter
                     m_stories = col.Query()
                         .OrderBy(x => x.Folder + x.Title)
                         .ToList();
+
+                    foreach (var story in m_stories)
+                        story.IsModified = false;
                 }
             }
             else
@@ -800,6 +791,26 @@ namespace StoryWriter
                 var text = System.Text.Json.JsonSerializer.Serialize(m_stories, options);
                 MakeBackup(filename);
                 File.WriteAllText(filename, text);
+            }
+        }
+
+        private void UpdateStories(string filename)
+        {
+            if (!m_modified)
+                return;
+
+            using (var db = new LiteDatabase(filename))
+            {
+                var stories = db.GetCollection<Story>("Stories");
+
+                foreach (var story in m_stories)
+                {
+                    if (story.IsModified)
+                    {
+                        stories.Update(story);
+                        story.IsModified = false;
+                    }
+                }
             }
         }
         #endregion

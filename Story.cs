@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using LiteDB;
 
 namespace StoryWriter
 {
-    public class Story : IComparable<Story>
+    public class Story
     {
         private string m_title;
         private string m_text;
         private string m_folder;
         private string m_tags;
+        private bool m_modified;
 
         public Story()
         {
@@ -18,10 +20,19 @@ namespace StoryWriter
             m_text = "";
             m_folder = "Generic";
             m_tags = "";
+            m_modified = false;
         }
 
         [JsonIgnore]
         public int Id { get; set; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public bool IsModified
+        {
+            get => m_modified;
+            set => m_modified = value;
+        }
 
         public string Title
         {
@@ -29,6 +40,7 @@ namespace StoryWriter
             set
             {
                 m_title = value;
+                m_modified = true;
             }
         }
 
@@ -38,6 +50,7 @@ namespace StoryWriter
             set
             {
                 m_text = value;
+                m_modified = true;
             }
         }
 
@@ -47,13 +60,18 @@ namespace StoryWriter
             set
             {
                 m_folder = value;
+                m_modified = true;
             }
         }
 
         public string Tags
         {
             get => m_tags;
-            set => m_tags = value;
+            set
+            {
+                m_tags = value;
+                m_modified = true;
+            }
         }
 
         public bool Contains(string text)
@@ -76,6 +94,7 @@ namespace StoryWriter
             tags.Add(tag);
 
             m_tags = string.Join(",", tags);
+            m_modified = true;
 
             return true;
         }
@@ -90,6 +109,7 @@ namespace StoryWriter
             tags.Remove(tag);
 
             m_tags = string.Join(",", tags);
+            m_modified = true;
 
             return true;
         }
@@ -112,39 +132,6 @@ namespace StoryWriter
             markdown.Append(m_text);
 
             return markdown.ToString();
-        }
-
-        //public int Compare(Story? x, Story? y)
-        //{
-        //    if (x == null && y == null)
-        //        return 0;
-
-        //    if (x == null)
-        //        return -1;
-
-        //    if (y == null)
-        //        return 1;
-
-        //    // Compare folders first
-        //    var result = x.Folder.CompareTo(y.Folder);
-
-        //    if (result != 0)
-        //        return result;
-
-        //    result = x.Title.CompareTo(y.Title);
-        //    return result;
-        //}
-
-        public int CompareTo(Story? story)
-        {
-            if (story == null)
-                return 1;
-
-            var result = CompareTo(story);
-            if (result != 0)
-                return result;
-
-            return m_title.CompareTo(story.Title);
         }
     }
 }
