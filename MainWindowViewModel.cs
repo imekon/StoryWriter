@@ -439,7 +439,7 @@ namespace StoryWriter
                     {
                         if (m_story != null)
                         {
-                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags };
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags, State = StoryState.Created };
                             var newStoryViewModel = new StoryViewModel(newStory);
                             
                             var index = m_stories.IndexOf(m_story.Story);
@@ -451,7 +451,7 @@ namespace StoryWriter
                         }
                         else
                         {
-                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags };
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags, State = StoryState.Created };
                             var newStoryViewModel = new StoryViewModel(newStory);
 
                             m_stories.Add(newStory);
@@ -483,7 +483,7 @@ namespace StoryWriter
                     {
                         if (m_story != null)
                         {
-                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags, Text = m_story.Text };
+                            var newStory = new Story { Folder = dialog.Folder, Title = dialog.StoryTitle, Tags = dialog.Tags, Text = m_story.Text, State = StoryState.Created };
                             var newStoryViewModel = new StoryViewModel(newStory);
 
                             var index = m_stories.IndexOf(m_story.Story);
@@ -514,7 +514,7 @@ namespace StoryWriter
                     m_story = null;
 
                     m_storyViewModels.Remove(story);
-                    m_stories.Remove(story.Story);
+                    story.Story.State = StoryState.Deleted;
                     m_modified = true;
                     OnPropertyChanged(nameof(ApplicationTitle));
                 });
@@ -654,6 +654,7 @@ namespace StoryWriter
         {
             var newStoryViewModel = new StoryViewModel(story);
             m_stories.Add(story);
+            story.State = StoryState.Created;
 
             m_storyViewModels.Add(newStoryViewModel);
             m_modified = true;
@@ -823,7 +824,7 @@ namespace StoryWriter
             if (!m_modified)
                 return;
 
-            using (var db = new LiteDatabase(filename))
+            using (var db = new LiteDatabase($"Filename={filename};Password={m_password}"))
             {
                 var stories = db.GetCollection<Story>("Stories");
 
