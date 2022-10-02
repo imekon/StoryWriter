@@ -20,7 +20,6 @@ namespace StoryWriter
     {
         private bool m_modified;
         private string m_filename;
-        private string m_dropBoxFilename;
         private string m_backupname;
         private StoryViewModel? m_story;
         private List<Story> m_stories;
@@ -73,10 +72,6 @@ namespace StoryWriter
             m_filename = appSettings["StoryFile"]!;
             if (string.IsNullOrEmpty(m_filename))
                 m_filename = "";
-
-            m_dropBoxFilename = appSettings["DropBox"]!;
-            if (string.IsNullOrEmpty(m_dropBoxFilename))
-                m_dropBoxFilename = "";
 
             m_backupname = appSettings["Backup"]!;
             if (string.IsNullOrEmpty(m_backupname))
@@ -292,7 +287,6 @@ namespace StoryWriter
                     {
                         m_modified = false;
                         m_filename = dialog.FileName;
-                        File.Copy(m_dropBoxFilename, m_filename, true);
                         LoadStories(dialog.FileName);
                         Build();
 
@@ -420,9 +414,6 @@ namespace StoryWriter
                             }
                         }
                     }
-
-                    if (!string.IsNullOrEmpty(m_dropBoxFilename))
-                        File.Copy(m_filename, m_dropBoxFilename, true);
 
                     Application.Current.Shutdown(0);
                 });
