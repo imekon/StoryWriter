@@ -850,6 +850,8 @@ namespace StoryWriter
 
                     story.State = StoryState.Normal;
                 }
+
+                db.Commit();
             }
         }
         #endregion
