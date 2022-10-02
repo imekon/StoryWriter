@@ -292,6 +292,7 @@ namespace StoryWriter
                     {
                         m_modified = false;
                         m_filename = dialog.FileName;
+                        File.Copy(m_dropBoxFilename, m_filename, true);
                         LoadStories(dialog.FileName);
                         Build();
 
