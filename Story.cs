@@ -120,11 +120,13 @@ namespace StoryWriter
             return true;
         }
 
+        [BsonIgnore]
         public int CharacterCount
         {
             get => Helpers.GetCharacterCount(m_text);
         }
 
+        [BsonIgnore]
         public int WordCount
         {
             get => Helpers.GetWordCount(m_text);
