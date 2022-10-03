@@ -382,6 +382,30 @@ namespace StoryWriter
             }
         }
 
+        public ICommand BackupCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    if (!string.IsNullOrEmpty(m_filename) && !string.IsNullOrEmpty(m_backupname))
+                        File.Copy(m_filename, m_backupname, true);
+                });
+            }
+        }
+
+        public ICommand RestoreCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    if (!string.IsNullOrEmpty(m_filename) && !string.IsNullOrEmpty(m_backupname))
+                        File.Copy(m_backupname, m_filename, true);
+                });
+            }
+        }
+
         public ICommand ExitCommand
         {
             get
@@ -743,16 +767,6 @@ namespace StoryWriter
             }
         }
 
-        private void MakeBackup(string filename)
-        {
-            Trace.WriteLine("Making backup");
-            if (!string.IsNullOrEmpty(m_backupname) && File.Exists(filename))
-            {
-                Trace.WriteLine("Copying original to backup");
-                File.Copy(filename, m_backupname, true);
-            }
-        }
-
         private void SaveStories(string filename)
         {
             if (m_keySetting == KeySetting.OnSave)
@@ -768,7 +782,6 @@ namespace StoryWriter
                     WriteIndented = true
                 };
                 var text = System.Text.Json.JsonSerializer.Serialize(m_stories, options);
-                MakeBackup(filename);
                 using (FileStream writeFileStream = new(filename, FileMode.OpenOrCreate))
                 {
                     using (Aes aes = Aes.Create())
@@ -814,7 +827,6 @@ namespace StoryWriter
                     WriteIndented = true
                 };
                 var text = System.Text.Json.JsonSerializer.Serialize(m_stories, options);
-                MakeBackup(filename);
                 File.WriteAllText(filename, text);
             }
         }
