@@ -59,12 +59,23 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Margin="2" Text="{Binding Filter}"/>
+                <Button Grid.Column="1" Margin="2" Command="{Binding SearchCommand}"/>
+                <Button Grid.Column="2" Margin="2" Command="{Binding ClearCommand}"/>
+            </Grid>
+
             <ListView
                 SelectedItem="{Binding SelectedStory}"
                 ItemsSource="{Binding Stories}"
                 Grid.Column="0"
-                Grid.Row="0"
-                Grid.RowSpan="3">
+                Grid.Row="1"
+                Grid.RowSpan="2">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="120"/>
