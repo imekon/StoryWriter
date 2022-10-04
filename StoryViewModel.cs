@@ -20,6 +20,7 @@ namespace StoryWriter
             {
                 m_story.Title = value;
                 OnPropertyChanged(nameof(Title));
+                OnPropertyChanged(nameof(IsModified));
             }
         }
 
@@ -30,6 +31,7 @@ namespace StoryWriter
             {
                 m_story.Text = value;
                 OnPropertyChanged(nameof(Text));
+                OnPropertyChanged(nameof(IsModified));
             }
         }
 
@@ -40,6 +42,7 @@ namespace StoryWriter
             {
                 m_story.Folder = value;
                 OnPropertyChanged(nameof(Folder));
+                OnPropertyChanged(nameof(IsModified));
             }
         }
 
@@ -50,6 +53,7 @@ namespace StoryWriter
             {
                 m_story.Tags = value;
                 OnPropertyChanged(nameof(Tags));
+                OnPropertyChanged(nameof(IsModified));
             }
         }
 
@@ -61,6 +65,11 @@ namespace StoryWriter
             }
         }
 
+        public bool IsModified
+        {
+            get => m_story.State == StoryState.Modified;
+        }
+
         public Story Story => m_story;
 
         public ObservableCollection<StoryViewModel> Children => m_children;
@@ -68,6 +77,11 @@ namespace StoryWriter
         public string GetMarkdown()
         {
             return m_story.GetMarkdown();
+        }
+
+        public void StatePropertyChanged()
+        {
+            OnPropertyChanged(nameof(IsModified));
         }
     }
 }

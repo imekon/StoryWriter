@@ -80,6 +80,15 @@
                 Grid.Column="0"
                 Grid.Row="1"
                 Grid.RowSpan="2">
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                <Setter Property="Background" Value="LightSalmon"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.Resources>
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="120"/>

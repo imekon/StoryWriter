@@ -939,6 +939,9 @@ namespace StoryWriter
                     story.State = StoryState.Normal;
                 }
             }
+
+            foreach (var storyViewModel in m_storyViewModels)
+                storyViewModel.StatePropertyChanged();
         }
         #endregion
     }
