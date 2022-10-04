@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ICSharpCode.AvalonEdit.Editing;
 
 namespace StoryWriter
 {
@@ -67,7 +68,12 @@ namespace StoryWriter
 
         public bool IsModified
         {
-            get => m_story.State == StoryState.Modified;
+            get => m_story.State != StoryState.Normal;
+        }
+
+        public bool IsFavourite
+        {
+            get => m_story.ContainsTag("favourite");
         }
 
         public Story Story => m_story;
@@ -82,6 +88,8 @@ namespace StoryWriter
         public void StatePropertyChanged()
         {
             OnPropertyChanged(nameof(IsModified));
+            OnPropertyChanged(nameof(IsFavourite));
+            OnPropertyChanged(nameof(WordCount));
         }
     }
 }

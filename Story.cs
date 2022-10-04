@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Windows.Forms;
 using LiteDB;
 
 namespace StoryWriter
@@ -140,6 +141,14 @@ namespace StoryWriter
             markdown.Append(m_text);
 
             return markdown.ToString();
+        }
+
+        public bool ContainsTag(string tag)
+        {
+            if (string.IsNullOrEmpty(m_tags))
+                return false;
+
+            return m_tags.Contains(tag);
         }
     }
 }

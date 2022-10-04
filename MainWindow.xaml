@@ -84,7 +84,10 @@
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsModified}" Value="True">
-                                <Setter Property="Background" Value="LightSalmon"/>
+                                <Setter Property="Background" Value="LightPink"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsFavourite}" Value="True">
+                                <Setter Property="Background" Value="Goldenrod"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
