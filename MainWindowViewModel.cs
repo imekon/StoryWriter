@@ -13,6 +13,7 @@ using System.Windows.Input;
 using LiteDB;
 using Microsoft.Win32;
 using MoonSharp.Interpreter;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace StoryWriter
 {
@@ -24,6 +25,7 @@ namespace StoryWriter
         private StoryViewModel? m_story;
         private List<Story> m_stories;
         private string m_statusText;
+        private string m_filter;
         private byte[]? m_key;
         private string? m_password;
         private KeySetting m_keySetting;
@@ -104,6 +106,7 @@ namespace StoryWriter
             m_script.Options.DebugPrint = s => Print(s);
 
             m_statusText = "";
+            m_filter = "";
         }
 
         #region Parameters
@@ -246,6 +249,16 @@ namespace StoryWriter
         }
 
         public string StatusText => m_statusText;
+
+        public string Filter
+        {
+            get => m_filter;
+            set
+            {
+                m_filter = value;
+                OnPropertyChanged(nameof(Filter));
+            }
+        }
         #endregion
 
         #region Commands
@@ -597,6 +610,46 @@ namespace StoryWriter
             }
         }
 
+        public ICommand SearchCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    FilterStories(m_filename, m_filter);
+                    Build();
+
+                    m_story = m_storyViewModels[0];
+
+                    OnPropertyChanged(nameof(ApplicationTitle));
+                    OnPropertyChanged(nameof(Title));
+                    OnPropertyChanged(nameof(Text));
+                    OnPropertyChanged(nameof(Folders));
+                    OnPropertyChanged(nameof(Stories));
+                });
+            }
+        }
+
+        public ICommand ClearCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    LoadStories(m_filename);
+                    Build();
+
+                    m_story = m_storyViewModels[0];
+
+                    OnPropertyChanged(nameof(ApplicationTitle));
+                    OnPropertyChanged(nameof(Title));
+                    OnPropertyChanged(nameof(Text));
+                    OnPropertyChanged(nameof(Folders));
+                    OnPropertyChanged(nameof(Stories));
+                });
+            }
+        }
+
         #endregion
 
         #region Lua functions
@@ -662,6 +715,7 @@ namespace StoryWriter
             }
 
             var view = CollectionViewSource.GetDefaultView(m_storyViewModels);
+            view.GroupDescriptions.Clear();
             var groupDesc = new PropertyGroupDescription("Folder");
             view.GroupDescriptions.Add(groupDesc);
         }
@@ -764,6 +818,28 @@ namespace StoryWriter
 
                 if (stories != null)
                     m_stories = stories;
+            }
+        }
+
+        private void FilterStories(string filename, string filter)
+        {
+            UpdateStories(filename);
+
+            m_stories.Clear();
+
+            using (var stories = new LiteDatabase($"Filename={filename};Password={m_password}"))
+            {
+                var col = stories.GetCollection<Story>("stories");
+                if (col == null)
+                    return;
+
+                m_stories = col.Query()
+                    .Where(x => x.Title.Contains(filter))
+                    .OrderBy(x => x.Folder + x.Title)
+                    .ToList();
+
+                foreach (var story in m_stories)
+                    story.State = StoryState.Normal;
             }
         }
 
