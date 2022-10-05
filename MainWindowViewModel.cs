@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using LiteDB;
 using Microsoft.Win32;
@@ -610,6 +611,27 @@ namespace StoryWriter
             }
         }
 
+        public ICommand QueryCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    QueryStories(m_filename, m_filter);
+                    Build();
+
+                    m_story = m_storyViewModels[0];
+
+                    OnPropertyChanged(nameof(ApplicationTitle));
+                    OnPropertyChanged(nameof(Title));
+                    OnPropertyChanged(nameof(Text));
+                    OnPropertyChanged(nameof(Folders));
+                    OnPropertyChanged(nameof(Stories));
+
+                });
+            }
+        }
+
         public ICommand SearchCommand
         {
             get
@@ -818,6 +840,40 @@ namespace StoryWriter
 
                 if (stories != null)
                     m_stories = stories;
+            }
+        }
+
+        private void QueryStories(string filename, string query)
+        {
+            UpdateStories(filename);
+
+            using (var stories = new LiteDatabase($"Filename={filename};Password={m_password}"))
+            {
+                m_stories = new List<Story>();
+
+                using (var reader = stories.Execute(query))
+                {
+                    while (reader.Read())
+                    {
+                        var record = reader.Current;
+                        if (record == null)
+                            continue;
+
+                        if (record["_id"].IsInt32)
+                        {
+                            var story = new Story();
+                            story.Id = record["_id"];
+                            story.Folder = record["Folder"];
+                            story.Title = record["Title"];
+                            story.Text = record["Text"];
+                            story.Tags = record["Tags"];
+                            m_stories.Add(story);
+                        }
+                    }
+                }
+
+                foreach (var story in m_stories)
+                    story.State = StoryState.Normal;
             }
         }
 
