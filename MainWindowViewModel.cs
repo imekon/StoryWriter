@@ -564,7 +564,7 @@ namespace StoryWriter
             {
                 return new DelegateCommand((o) =>
                 {
-                    var tags = new HashSet<string>();
+                    var tags = new SortedSet<string>();
                     foreach(var story in m_stories)
                     {
                         var tagList = story.GetTags();
@@ -572,7 +572,9 @@ namespace StoryWriter
                             tags.Add(tag);
                     }
 
-                    var tagWindow = new TagWindow(tags.ToArray());
+                    var stories = m_stories.OrderBy(x => x.Title);
+
+                    var tagWindow = new TagWindow(stories.ToArray(), tags.ToArray());
                     tagWindow.Show();
                 });
             }

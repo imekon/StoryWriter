@@ -81,6 +81,7 @@
             </Grid>
 
             <ListView
+                Name="listView"
                 SelectedItem="{Binding SelectedStory}"
                 ItemsSource="{Binding Stories}"
                 Grid.Column="0"

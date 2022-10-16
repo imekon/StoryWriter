@@ -8,11 +8,11 @@ namespace StoryWriter
     /// </summary>
     public partial class TagWindow : Window
     {
-        public TagWindow(string[] tags)
+        public TagWindow(Story[] stories, string[] tags)
         {
             InitializeComponent();
 
-            DataContext = new TagWindowViewModel(tags.ToList());
+            DataContext = new TagWindowViewModel(stories, tags);
         }
     }
 }

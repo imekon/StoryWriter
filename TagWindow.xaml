@@ -9,9 +9,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="90"/>
-            <ColumnDefinition Width="90"/>
-            <ColumnDefinition Width="90"/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -19,7 +17,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ListBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" ItemsSource="{Binding Tags}">
+        <ListBox Grid.Column="0" Grid.Row="0" ItemsSource="{Binding Tags}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -33,5 +31,23 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+
+        <ListBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding Stories}" SelectedItem="{Binding SelectedStory}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="Goto" Width="90" Command="{Binding GotoCommand}"/>
+            <Button Content="Close" Width="90" Command="{Binding CloseCommand}"/>
+        </StackPanel>
     </Grid>
 </Window>
