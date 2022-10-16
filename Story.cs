@@ -86,6 +86,9 @@ namespace StoryWriter
 
         public string[] GetTags()
         {
+            if (string.IsNullOrEmpty(m_tags))
+                return Array.Empty<string>();
+
             return m_tags.Split(",");
         }
 

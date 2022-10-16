@@ -4,17 +4,16 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using LiteDB;
 using Microsoft.Win32;
 using MoonSharp.Interpreter;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace StoryWriter
 {
@@ -555,6 +554,26 @@ namespace StoryWriter
                     story.Story.State = StoryState.Deleted;
                     m_modified = true;
                     OnPropertyChanged(nameof(ApplicationTitle));
+                });
+            }
+        }
+
+        public ICommand TagWindowCommand
+        {
+            get
+            {
+                return new DelegateCommand((o) =>
+                {
+                    var tags = new HashSet<string>();
+                    foreach(var story in m_stories)
+                    {
+                        var tagList = story.GetTags();
+                        foreach (var tag in tagList)
+                            tags.Add(tag);
+                    }
+
+                    var tagWindow = new TagWindow(tags.ToArray());
+                    tagWindow.Show();
                 });
             }
         }

@@ -29,6 +29,8 @@
                 <MenuItem Header="_Remove" Command="{Binding RemoveStoryCommand}"/>
                 <Separator/>
                 <MenuItem Header="_View" Command="{Binding MDViewerCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Tags..." Command="{Binding TagWindowCommand}"/>
             </MenuItem>
             <MenuItem Header="S_cript">
                 <MenuItem Header="_Run..." Command="{Binding RunScriptCommand}"/>
