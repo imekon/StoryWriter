@@ -572,7 +572,7 @@ namespace StoryWriter
                             tags.Add(tag);
                     }
 
-                    var stories = m_stories.OrderBy(x => x.Title);
+                    var stories = m_storyViewModels.OrderBy(x => x.Title);
 
                     var tagWindow = new TagWindow(stories.ToArray(), tags.ToArray());
                     tagWindow.Show();

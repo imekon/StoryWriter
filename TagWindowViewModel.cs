@@ -18,7 +18,7 @@ namespace StoryWriter
 
         private ICollectionView m_storiesView;
 
-        public TagWindowViewModel(Story[] stories, string[] tags)
+        public TagWindowViewModel(StoryViewModel[] stories, string[] tags)
         {
             m_stories = new ObservableCollection<StoryViewModel>();
             m_tags = new ObservableCollection<TagViewModel>();
@@ -26,7 +26,7 @@ namespace StoryWriter
             m_selectedStory = null;
 
             foreach (var story in stories)
-                m_stories.Add(new StoryViewModel(story));
+                m_stories.Add(story);
 
             foreach (var tag in tags)
                 m_tags.Add(new TagViewModel(tag));

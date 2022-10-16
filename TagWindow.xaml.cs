@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace StoryWriter
 {
@@ -8,11 +10,16 @@ namespace StoryWriter
     /// </summary>
     public partial class TagWindow : Window
     {
-        public TagWindow(Story[] stories, string[] tags)
+        public TagWindow(object[] stories, string[] tags)
         {
             InitializeComponent();
 
-            DataContext = new TagWindowViewModel(stories, tags);
+            var list = new List<StoryViewModel>();
+
+            foreach (var story in stories)
+                list.Add(story as StoryViewModel);
+
+            DataContext = new TagWindowViewModel(list.ToArray(), tags);
         }
     }
 }
