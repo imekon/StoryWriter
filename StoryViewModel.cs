@@ -3,7 +3,7 @@ using ICSharpCode.AvalonEdit.Editing;
 
 namespace StoryWriter
 {
-    internal class StoryViewModel : ViewModelBase
+    public class StoryViewModel : ViewModelBase
     {
         private Story m_story;
         private ObservableCollection<StoryViewModel> m_children;

@@ -88,10 +88,11 @@ namespace StoryWriter
             if (!string.IsNullOrEmpty(passwordFile) && File.Exists(passwordFile))
                 m_password = File.ReadAllText(passwordFile);
 
+            m_story = null;
+
             m_instance = this;
 
             m_modified = false;
-            m_story = null;
             m_stories = new List<Story>();
             m_folders = new ObservableCollection<FolderViewModel>();
             m_storyViewModels = new ObservableCollection<StoryViewModel>();
@@ -736,6 +737,38 @@ namespace StoryWriter
             return res.ToString();
         }
 
+        private StoryViewModel? FindStory(Story story)
+        {
+            foreach(var storyViewModel in m_storyViewModels)
+            {
+                if (storyViewModel.Story == story)
+                    return storyViewModel;
+            }
+
+            return null;
+        }
+
+        private StoryViewModel? FindStory(string filename, string folderAndStory)
+        {
+            var fields = folderAndStory.Split("/");
+            if (fields == null)
+                return null;
+
+            var folder = fields[0];
+            var title = fields[1];
+
+            using (var db = new LiteDatabase($"Filename={filename};Password={m_password}"))
+            {
+                var stories = db.GetCollection<Story>("Stories");
+
+                var found = stories.Query()
+                    .Where(s => s.Folder == folder && s.Title == title);
+
+                var story = FindStory(found.First());
+                return story;
+            }
+        }
+
         private FolderViewModel? FindFolder(string name)
         {
             foreach(var folderViewModel in m_folders)
@@ -852,6 +885,13 @@ namespace StoryWriter
 
                     foreach (var story in m_stories)
                         story.State = StoryState.Normal;
+
+                    var appSettings = ConfigurationManager.AppSettings;
+                    var currentStory = appSettings["Current"];
+                    if (!string.IsNullOrEmpty(currentStory))
+                    {
+                        m_story = FindStory(m_filename, currentStory);
+                    }
                 }
             }
             else
@@ -971,6 +1011,14 @@ namespace StoryWriter
                     }
 
                     stories.EnsureIndex(t => t.Title);
+
+                    var appSettings = ConfigurationManager.AppSettings;
+                    if (m_story != null)
+                    {
+                        appSettings["Current"] = m_story.Folder + "/" + m_story.Title;
+                        var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                        configFile.Save(ConfigurationSaveMode.Modified);
+                    }
                 }
             }
             else

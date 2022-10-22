@@ -2,7 +2,7 @@
 
 namespace StoryWriter
 {
-    internal class FolderViewModel : ViewModelBase
+    public class FolderViewModel : ViewModelBase
     {
         private string m_title;
         private ObservableCollection<StoryViewModel> m_children;
