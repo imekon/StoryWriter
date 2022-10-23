@@ -794,6 +794,19 @@ namespace StoryWriter
             view.GroupDescriptions.Clear();
             var groupDesc = new PropertyGroupDescription("Folder");
             view.GroupDescriptions.Add(groupDesc);
+
+            var folders = new HashSet<string>();
+            foreach(var story in m_stories)
+            {
+                folders.Add(story.Folder);
+            }
+
+            m_folders.Clear();
+            foreach(var folder in folders)
+            {
+                var folderViewModel = new FolderViewModel(folder);
+                m_folders.Add(folderViewModel);
+            }
         }
 
         private void AddStatusText(string text)
